@@ -178,12 +178,47 @@ for message in st.session_state.messages:
 quick_prompt = None
 
 if st.session_state.app_state.get("stage") == "ask_platform":
-    st.markdown("<p style='color: #e1e1e1; font-size: 14px; margin-bottom: 5px; margin-top: 10px;'>Select your primary platform:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #e1e1e1; font-size: 14px; margin-bottom: 8px; margin-top: 10px;'>Select your primary platform(s):</p>", unsafe_allow_html=True)
+    
+    PLATFORMS = [
+        "YouTube 🔴", "Instagram 📸", "TikTok 🎵", "Facebook 🔵",
+        "X (Twitter) 🐦", "LinkedIn 💼", "Twitch 💜", "Snapchat 👻",
+        "Pinterest 📌", "Reddit 🤖", "Threads 🧵", "Kwai 🎬",
+        "Likee 💫", "ShareChat 🇮🇳", "Moj 🎭", "Josh 🎯",
+        "Chingari 🔥", "Other ✍️"
+    ]
+    
+    if "selected_platforms" not in st.session_state:
+        st.session_state.selected_platforms = []
+    
     cols = st.columns(4)
-    platforms = ["YouTube 🔴", "Instagram 📸", "TikTok 🎵", "Other ✍️"]
-    for i, plat in enumerate(platforms):
-        if cols[i].button(plat, key=f"btn_{i}", use_container_width=True):
-            quick_prompt = plat
+    for idx, plat in enumerate(PLATFORMS):
+        col = cols[idx % 4]
+        is_checked = plat in st.session_state.selected_platforms
+        if col.checkbox(plat, key=f"plat_{idx}", value=is_checked):
+            if plat not in st.session_state.selected_platforms:
+                st.session_state.selected_platforms.append(plat)
+        else:
+            if plat in st.session_state.selected_platforms:
+                st.session_state.selected_platforms.remove(plat)
+    
+    other_selected = "Other ✍️" in st.session_state.selected_platforms
+    other_input = ""
+    if other_selected:
+        other_input = st.text_input("Enter your platform name:", key="other_platform_input", placeholder="e.g. Substack, Vimeo...")
+    
+    if st.button("Confirm Platform(s) →", key="confirm_platforms", type="primary", use_container_width=False):
+        selected = [p for p in st.session_state.selected_platforms if p != "Other ✍️"]
+        if other_selected and other_input.strip():
+            selected.append(other_input.strip())
+        if selected:
+            # Strip emojis for clean storage by joining names
+            clean = ", ".join(
+                p.rsplit(" ", 1)[0].strip() if any(ord(c) > 127 for c in p.split()[-1]) else p
+                for p in selected
+            )
+            quick_prompt = clean
+            st.session_state.selected_platforms = []
 
 # Chat Input
 chat_val = st.chat_input("How can I help you today?")

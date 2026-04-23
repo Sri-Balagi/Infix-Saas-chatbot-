@@ -47,8 +47,13 @@ def handle_lead(state, user_input):
         elif stage == "ask_platform" and not user_data["platform"]:
             if lower_input == "other" or "other ✍️" in lower_input:
                 return "Got it! Please type the name of the social media platform you primarily use."
-            extracted = extract_entity("Platform", user_input, history)
-            if extracted and "other" not in extracted.lower(): user_data["platform"] = extracted
+            # Multi-platform input from UI buttons comes as comma-separated clean text — store directly
+            if "," in user_input or any(p in user_input for p in ["YouTube","Instagram","TikTok","Facebook","LinkedIn","Twitch","Snapchat","Pinterest","Reddit","Threads","Kwai","Likee","ShareChat","Moj","Josh","Chingari"]):
+                user_data["platform"] = user_input.strip()
+            else:
+                extracted = extract_entity("Platform", user_input, history)
+                if extracted and "other" not in extracted.lower():
+                    user_data["platform"] = extracted
 
     # Determine what to ask next based on missing data
     if not user_data["name"]:
