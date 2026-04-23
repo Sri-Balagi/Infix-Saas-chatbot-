@@ -1,6 +1,22 @@
 import streamlit as st
 from dotenv import load_dotenv
 import uuid
+import re
+
+def sanitize_text(text: str) -> str:
+    """Strip markdown syntax and return clean plain text."""
+    # Remove inline code: `code`
+    text = re.sub(r'`([^`]+)`', r'\1', text)
+    # Remove bold/italic: **text**, *text*, __text__, _text_
+    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+    text = re.sub(r'\*(.+?)\*', r'\1', text)
+    text = re.sub(r'__(.+?)__', r'\1', text)
+    text = re.sub(r'_(.+?)_', r'\1', text)
+    # Remove fenced code blocks
+    text = re.sub(r'```[\s\S]*?```', '', text)
+    # Remove heading markers
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    return text.strip()
 
 # Load environment variables
 load_dotenv()
@@ -98,8 +114,16 @@ st.markdown("""
         border-color: #00a884;
     }
 
-    /* Checkboxes */
-    .stCheckbox label { font-size: 16px !important; color: #e1e1e1 !important; }
+    /* Override ALL code/pre elements inside chat to match body font */
+    .stChatMessage code, .stChatMessage pre, .stChatMessage kbd {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        font-size: 19px !important;
+        background: transparent !important;
+        color: inherit !important;
+        border: none !important;
+        padding: 0 !important;
+        white-space: normal !important;
+    }
 
     #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
 
@@ -187,7 +211,7 @@ st.markdown('<div class="mac-title">Infix Chat</div>', unsafe_allow_html=True)
 # Display Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+        st.write(message["content"])
 
 # Quick reply state handler
 quick_prompt = None
@@ -257,10 +281,10 @@ if prompt:
             output = step
             
         if output and output.get("messages"):
-            agent_msg = output["messages"][-1]["content"]
+            agent_msg = sanitize_text(output["messages"][-1]["content"])
             st.session_state.messages.append({"role": "assistant", "content": agent_msg})
             with st.chat_message("assistant"):
-                st.markdown(agent_msg)
+                st.write(agent_msg)
                 
             # Update local session state to reflect in UI
             st.session_state.app_state["stage"] = output.get("stage")
