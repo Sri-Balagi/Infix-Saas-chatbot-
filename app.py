@@ -1,5 +1,4 @@
 import streamlit as st
-from main import graph
 from dotenv import load_dotenv
 import uuid
 
@@ -127,9 +126,13 @@ if "app_state" not in st.session_state:
         "stage": None,
         "user_data": {"name": None, "email": None, "platform": None}
     }
-    # Update graph state with initial values
-    config = {"configurable": {"thread_id": st.session_state.thread_id}}
-    graph.update_state(config, st.session_state.app_state)
+    }
+    
+    with st.spinner("Initializing AI Brain & Vector Store..."):
+        from main import graph
+        # Update graph state with initial values
+        config = {"configurable": {"thread_id": st.session_state.thread_id}}
+        graph.update_state(config, st.session_state.app_state)
 
 # Sidebar - Status and Data
 with st.sidebar:
@@ -178,7 +181,8 @@ if prompt := st.chat_input("How can I help you today?"):
     with st.chat_message("user"):
         st.markdown(prompt)
         
-    # Process with Graph
+    # Process with Graph (Re-import is cached contextually by Python)
+    from main import graph
     config = {"configurable": {"thread_id": st.session_state.thread_id}}
     inputs = {"messages": [{"role": "user", "content": prompt}]}
     
