@@ -9,18 +9,18 @@ def handle_lead(state, user_input):
     
     if user_input:
         lower_check = user_input.lower()
-        if "change my name" in lower_check or "wrong name" in lower_check:
+        if "change my name" in lower_check or "wrong name" in lower_check or ("change" in lower_check and "name" in lower_check):
             user_data["name"] = None
             state["stage"] = "ask_name"
             return "Not a problem! What would you like to update your name to?"
-        elif "change my email" in lower_check or "wrong email" in lower_check:
+        elif "change my email" in lower_check or "wrong email" in lower_check or ("change" in lower_check and "email" in lower_check):
             user_data["email"] = None
             state["stage"] = "ask_email"
             return "Got it. What would you like to update your email address to?"
-        elif "change my platform" in lower_check or "wrong platform" in lower_check:
+        elif "change my platform" in lower_check or "wrong platform" in lower_check or ("change" in lower_check and "platform" in lower_check) or "platform list" in lower_check:
             user_data["platform"] = None
             state["stage"] = "ask_platform"
-            return "No worries! What is your primary content platform?"
+            return "No worries! Please select or type your updated platform(s)."
         
     # Actually extract the data if we just asked for it and user provided details
     if user_input:

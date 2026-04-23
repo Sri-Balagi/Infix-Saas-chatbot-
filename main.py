@@ -34,7 +34,7 @@ def router(state: AppState):
             return "greeting"
         elif intent == "inquiry":
             return "rag"
-        elif intent == "high_intent":
+        elif intent in ("high_intent", "update_details"):
             return "lead_flow"
         elif intent == "exit":
             return "exit_lead"

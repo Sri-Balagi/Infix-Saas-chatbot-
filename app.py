@@ -15,99 +15,114 @@ st.set_page_config(
 # macOS UI/UX Styling
 st.markdown("""
 <style>
-    /* Midnight Sea Dynamic Background */
+    /* ----- Midnight Gradient Background ----- */
     @keyframes gradientBG {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
-
     [data-testid="stAppViewContainer"] {
         background: linear-gradient(-45deg, #000000, #001a33, #004b7a, #000000) !important;
         background-size: 400% 400% !important;
         animation: gradientBG 20s ease infinite !important;
-        color: white !important;
     }
-    
-    /* Ensure main area content is transparent to show background */
-    [data-testid="stVerticalBlock"] {
-        background-color: transparent !important;
-    }
-    
-    /* Sidebar Styling - Glassmorphism Dark */
+    [data-testid="stVerticalBlock"] { background-color: transparent !important; }
+
+    /* ----- Sidebar ----- */
     [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.6) !important;
+        background-color: rgba(0, 0, 0, 0.65) !important;
         backdrop-filter: blur(40px) saturate(180%);
-        -webkit-backdrop-filter: blur(40px) saturate(180%);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    /* Message styling */
-    .stChatMessage {
-        border-radius: 18px !important;
-        padding: 12px 18px !important;
-        margin-bottom: 24px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-    
-    /* User message bubble - SF Blue */
-    [data-testid="stChatMessage"]:nth-child(even) {
-        background-color: #007aff !important;
-        color: white !important;
-    }
-    
-    /* Agent message bubble - Dark Translucent */
-    [data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(255,255,255,0.08);
     }
 
-    /* Input area styling */
-    [data-testid="stChatInput"] {
-        border-radius: 20px !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        background: rgba(40, 40, 40, 0.8) !important;
-        color: white !important;
+    /* ----- WhatsApp-style Chat Area ----- */
+    [data-testid="stChatMessageContainer"],
+    [data-testid="stChatMessage"] {
+        background: transparent !important;
     }
-    
-    /* Button Styling */
+
+    /* User bubbles – WhatsApp green */
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+        background-color: #005c4b !important;
+        color: #e9fde0 !important;
+        border-radius: 18px 18px 4px 18px !important;
+        padding: 14px 18px !important;
+        margin-left: auto !important;
+        max-width: 72% !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+        font-size: 19px !important;
+        line-height: 1.6 !important;
+    }
+
+    /* Agent bubbles – dark white card */
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
+        background-color: rgba(32, 44, 51, 0.95) !important;
+        color: #e9edef !important;
+        border-radius: 18px 18px 18px 4px !important;
+        padding: 14px 18px !important;
+        max-width: 72% !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+        border: 1px solid rgba(255,255,255,0.06);
+        font-size: 19px !important;
+        line-height: 1.6 !important;
+    }
+
+    /* Chat message text */
+    .stChatMessage p, .stChatMessage span, .stChatMessage div {
+        font-size: 19px !important;
+        line-height: 1.6 !important;
+    }
+
+    /* ----- Input box ----- */
+    [data-testid="stChatInput"] {
+        border-radius: 26px !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        background: rgba(32, 44, 51, 0.95) !important;
+        color: #e9edef !important;
+        font-size: 17px !important;
+        padding: 12px 20px !important;
+    }
+
+    /* ----- Buttons ----- */
     .stButton>button {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        background-color: rgba(0,92,75,0.7);
+        color: #e9fde0;
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(0,92,75,0.9);
         font-weight: 500;
-        transition: all 0.3s ease;
+        font-size: 16px !important;
+        transition: all 0.25s ease;
     }
     .stButton>button:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(0, 122, 255, 0.5);
+        background-color: rgba(0,120,100,0.9);
+        border-color: #00a884;
     }
 
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Custom Title */
+    /* Checkboxes */
+    .stCheckbox label { font-size: 16px !important; color: #e1e1e1 !important; }
+
+    #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
+
+    /* Titles */
     .mac-title {
-        font-size: 28px;
-        font-weight: 600;
+        font-size: 30px;
+        font-weight: 700;
         letter-spacing: -0.5px;
-        color: #ffffff;
-        margin-bottom: 24px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: #e9edef;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.4);
     }
-    
+
+    /* Lead info card */
     .status-card {
-        background: rgba(40, 40, 40, 0.4);
+        background: rgba(32, 44, 51, 0.6);
         padding: 16px;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255,255,255,0.08);
         margin-bottom: 12px;
-        font-size: 14px;
-        color: #e1e1e1;
+        font-size: 15px;
+        color: #c8d3d8;
+        line-height: 1.7;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -126,7 +141,7 @@ if "app_state" not in st.session_state:
         "stage": None,
         "user_data": {"name": None, "email": None, "platform": None}
     }
-    }
+    
     
     with st.spinner("Initializing AI Brain & Vector Store..."):
         from main import graph

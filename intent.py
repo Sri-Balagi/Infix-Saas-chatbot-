@@ -32,6 +32,7 @@ def classify_intent(user_input, messages, current_stage=None):
         - greeting (User says hi, hello, what's up)
         - inquiry (User asks about product, pricing, service, plans, features, including follow-up questions)
         - high_intent (User wants to sign up, buy, use the product, or provide their details)
+        - update_details (User wants to change, update or correct their previously submitted name, email, or platform list)
         - exit (User says bye, goodbye, exit, or wants to end the conversation)
         - other (Unrelated small talk not related to AutoStream)
         
