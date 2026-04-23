@@ -174,8 +174,22 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# Quick reply state handler
+quick_prompt = None
+
+if st.session_state.app_state.get("stage") == "ask_platform":
+    st.markdown("<p style='color: #e1e1e1; font-size: 14px; margin-bottom: 5px; margin-top: 10px;'>Select your primary platform:</p>", unsafe_allow_html=True)
+    cols = st.columns(4)
+    platforms = ["YouTube 🔴", "Instagram 📸", "TikTok 🎵", "Other ✍️"]
+    for i, plat in enumerate(platforms):
+        if cols[i].button(plat, key=f"btn_{i}", use_container_width=True):
+            quick_prompt = plat
+
 # Chat Input
-if prompt := st.chat_input("How can I help you today?"):
+chat_val = st.chat_input("How can I help you today?")
+prompt = quick_prompt or chat_val
+
+if prompt:
     # Add user message to history
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):

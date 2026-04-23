@@ -7,11 +7,20 @@ def handle_lead(state, user_input):
     stage = state["stage"]
     history = get_transcript(state["messages"])
     
-    # Check for name update requests
-    if user_input and ("change my name" in user_input.lower() or "wrong name" in user_input.lower()):
-        user_data["name"] = None
-        state["stage"] = "ask_name"
-        return "Not a problem! What would you like to update your name to?"
+    if user_input:
+        lower_check = user_input.lower()
+        if "change my name" in lower_check or "wrong name" in lower_check:
+            user_data["name"] = None
+            state["stage"] = "ask_name"
+            return "Not a problem! What would you like to update your name to?"
+        elif "change my email" in lower_check or "wrong email" in lower_check:
+            user_data["email"] = None
+            state["stage"] = "ask_email"
+            return "Got it. What would you like to update your email address to?"
+        elif "change my platform" in lower_check or "wrong platform" in lower_check:
+            user_data["platform"] = None
+            state["stage"] = "ask_platform"
+            return "No worries! What is your primary content platform?"
         
     # Actually extract the data if we just asked for it and user provided details
     if user_input:
@@ -24,6 +33,9 @@ def handle_lead(state, user_input):
         if "email is" in lower_input or "email:" in lower_input or "@" in lower_input:
             extracted = extract_entity("Email Address", user_input, history)
             if extracted: user_data["email"] = extracted
+        if "platform is" in lower_input or "use" in lower_input or "create on" in lower_input:
+            extracted = extract_entity("Platform", user_input, history)
+            if extracted and "other" not in extracted.lower(): user_data["platform"] = extracted
             
         # Standard stage-gated extraction
         if (stage == "ask_name" or not stage) and not user_data["name"]:
@@ -33,8 +45,10 @@ def handle_lead(state, user_input):
             extracted = extract_entity("Email Address", user_input, history)
             if extracted: user_data["email"] = extracted
         elif stage == "ask_platform" and not user_data["platform"]:
+            if lower_input == "other" or "other ✍️" in lower_input:
+                return "Got it! Please type the name of the social media platform you primarily use."
             extracted = extract_entity("Platform", user_input, history)
-            if extracted: user_data["platform"] = extracted
+            if extracted and "other" not in extracted.lower(): user_data["platform"] = extracted
 
     # Determine what to ask next based on missing data
     if not user_data["name"]:
