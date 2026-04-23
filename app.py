@@ -1,21 +1,14 @@
-import streamlit as st
+﻿import streamlit as st
 from dotenv import load_dotenv
 import uuid
 import re
 
 def sanitize_text(text: str) -> str:
-    """Strip markdown syntax and return clean plain text."""
-    # Remove inline code: `code`
+    """Strip only backtick code syntax; preserve bold, bullets, and structure."""
+    # Remove inline code: `code` -> plain text
     text = re.sub(r'`([^`]+)`', r'\1', text)
-    # Remove bold/italic: **text**, *text*, __text__, _text_
-    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
-    text = re.sub(r'\*(.+?)\*', r'\1', text)
-    text = re.sub(r'__(.+?)__', r'\1', text)
-    text = re.sub(r'_(.+?)_', r'\1', text)
-    # Remove fenced code blocks
+    # Remove fenced code blocks entirely
     text = re.sub(r'```[\s\S]*?```', '', text)
-    # Remove heading markers
-    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
     return text.strip()
 
 # Load environment variables
@@ -211,7 +204,7 @@ st.markdown('<div class="mac-title">Infix Chat</div>', unsafe_allow_html=True)
 # Display Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        st.write(message["content"])
+        st.markdown(message[" content\])
 
 # Quick reply state handler
 quick_prompt = None
@@ -284,7 +277,7 @@ if prompt:
             agent_msg = sanitize_text(output["messages"][-1]["content"])
             st.session_state.messages.append({"role": "assistant", "content": agent_msg})
             with st.chat_message("assistant"):
-                st.write(agent_msg)
+                st.markdown(agent_msg)
                 
             # Update local session state to reflect in UI
             st.session_state.app_state["stage"] = output.get("stage")

@@ -46,11 +46,25 @@ def ask_rag(retriever, query, transcript=""):
     The user's question might be a follow-up related to the conversation history, so use it to understand the context.
     If the context does not contain the answer, politely tell them that you can only help with AutoStream's product, pricing, and features.
     
-    IMPORTANT FORMATTING RULES:
-    - Write in plain conversational prose only.
-    - Do NOT use markdown: no backticks, no bold (**), no bullet points, no headings, no code blocks.
-    - Keep numbers and prices as plain text (e.g. $29/month, not `$29/month`).
-    - Keep the answer natural, friendly, and consistent in font.
+    FORMATTING RULES (strictly follow these):
+    - Do NOT use backticks or code blocks. Never use `inline code`.
+    - For plan-related answers, always structure each plan like this example:
+    
+      **Basic Plan**
+      - Price: $29/month
+      - Videos per month: 10
+      - Resolution: 720p
+    
+      **Pro Plan**
+      - Price: $79/month
+      - Videos: Unlimited
+      - Resolution: 4K
+      - AI Captions: Yes
+      - Support: 24/7
+    
+    - For non-plan answers, write in plain friendly prose. No backticks.
+    - Keep plan names bold using **Plan Name** format.
+    - List features using - (dash) bullet points.
 
     Context:
     {context}
