@@ -1,6 +1,8 @@
 .env
 .venv
 __pycache__/
-test_results*.txt
+test_results.txt
+test_results2.txt
+pdf_text.txt
 *.pdf
 
