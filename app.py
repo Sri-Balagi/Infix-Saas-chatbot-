@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 from dotenv import load_dotenv
 import uuid
 import re
@@ -21,7 +21,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# macOS UI/UX Styling
+# UI Styling
 st.markdown("""
 <style>
     /* ----- Midnight Gradient Background ----- */
@@ -50,7 +50,7 @@ st.markdown("""
         background: transparent !important;
     }
 
-    /* User bubbles – WhatsApp green */
+    /* User bubbles - WhatsApp green */
     [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
         background-color: #005c4b !important;
         color: #e9fde0 !important;
@@ -63,7 +63,7 @@ st.markdown("""
         line-height: 1.6 !important;
     }
 
-    /* Agent bubbles – dark white card */
+    /* Agent bubbles - dark card */
     [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
         background-color: rgba(32, 44, 51, 0.95) !important;
         color: #e9edef !important;
@@ -77,7 +77,8 @@ st.markdown("""
     }
 
     /* Chat message text */
-    .stChatMessage p, .stChatMessage span, .stChatMessage div {
+    .stChatMessage p, .stChatMessage span, .stChatMessage div,
+    .stChatMessage li, .stChatMessage strong {
         font-size: 19px !important;
         line-height: 1.6 !important;
     }
@@ -107,7 +108,7 @@ st.markdown("""
         border-color: #00a884;
     }
 
-    /* Override ALL code/pre elements inside chat to match body font */
+    /* Override code/pre elements inside chat to match body font */
     .stChatMessage code, .stChatMessage pre, .stChatMessage kbd {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         font-size: 19px !important;
@@ -117,6 +118,9 @@ st.markdown("""
         padding: 0 !important;
         white-space: normal !important;
     }
+
+    /* Checkboxes */
+    .stCheckbox label { font-size: 16px !important; color: #e1e1e1 !important; }
 
     #MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}
 
@@ -147,22 +151,18 @@ st.markdown("""
 # Initialize Session State
 if "thread_id" not in st.session_state:
     st.session_state.thread_id = str(uuid.uuid4())
-    
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
-    
+
 if "app_state" not in st.session_state:
-    # Initial state
     st.session_state.app_state = {
         "messages": [],
         "stage": None,
         "user_data": {"name": None, "email": None, "platform": None}
     }
-    
-    
     with st.spinner("Initializing AI Brain & Vector Store..."):
         from main import graph
-        # Update graph state with initial values
         config = {"configurable": {"thread_id": st.session_state.thread_id}}
         graph.update_state(config, st.session_state.app_state)
 
@@ -170,16 +170,15 @@ if "app_state" not in st.session_state:
 with st.sidebar:
     st.markdown('<div class="mac-title">Infix</div>', unsafe_allow_html=True)
     st.markdown("### Agent Status")
-    
-    # Show active stage
+
     stage = st.session_state.app_state.get("stage")
     stage_display = stage.replace("_", " ").title() if stage else "Idle / Inquiry"
     st.info(f"**Current Flow:** {stage_display}")
-    
+
     st.markdown("---")
     st.markdown("### Captured Lead Info")
     user_data = st.session_state.app_state.get("user_data", {})
-    
+
     st.markdown(f"""
     <div class="status-card">
         <b>Name:</b> {user_data.get('name') or "---"}<br>
@@ -187,7 +186,7 @@ with st.sidebar:
         <b>Platform:</b> {user_data.get('platform') or "---"}
     </div>
     """, unsafe_allow_html=True)
-    
+
     if st.button("Clear Chat History", type="secondary"):
         st.session_state.messages = []
         st.session_state.thread_id = str(uuid.uuid4())
@@ -204,14 +203,14 @@ st.markdown('<div class="mac-title">Infix Chat</div>', unsafe_allow_html=True)
 # Display Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        st.markdown(message[" content\])
+        st.markdown(message["content"])
 
 # Quick reply state handler
 quick_prompt = None
 
 if st.session_state.app_state.get("stage") == "ask_platform":
     st.markdown("<p style='color: #e1e1e1; font-size: 14px; margin-bottom: 8px; margin-top: 10px;'>Select your primary platform(s):</p>", unsafe_allow_html=True)
-    
+
     PLATFORMS = [
         "YouTube 🔴", "Instagram 📸", "TikTok 🎵", "Facebook 🔵",
         "X (Twitter) 🐦", "LinkedIn 💼", "Twitch 💜", "Snapchat 👻",
@@ -219,10 +218,10 @@ if st.session_state.app_state.get("stage") == "ask_platform":
         "Likee 💫", "ShareChat 🇮🇳", "Moj 🎭", "Josh 🎯",
         "Chingari 🔥", "Other ✍️"
     ]
-    
+
     if "selected_platforms" not in st.session_state:
         st.session_state.selected_platforms = []
-    
+
     cols = st.columns(4)
     for idx, plat in enumerate(PLATFORMS):
         col = cols[idx % 4]
@@ -233,18 +232,17 @@ if st.session_state.app_state.get("stage") == "ask_platform":
         else:
             if plat in st.session_state.selected_platforms:
                 st.session_state.selected_platforms.remove(plat)
-    
+
     other_selected = "Other ✍️" in st.session_state.selected_platforms
     other_input = ""
     if other_selected:
         other_input = st.text_input("Enter your platform name:", key="other_platform_input", placeholder="e.g. Substack, Vimeo...")
-    
+
     if st.button("Confirm Platform(s) →", key="confirm_platforms", type="primary", use_container_width=False):
         selected = [p for p in st.session_state.selected_platforms if p != "Other ✍️"]
         if other_selected and other_input.strip():
             selected.append(other_input.strip())
         if selected:
-            # Strip emojis for clean storage by joining names
             clean = ", ".join(
                 p.rsplit(" ", 1)[0].strip() if any(ord(c) > 127 for c in p.split()[-1]) else p
                 for p in selected
@@ -257,29 +255,25 @@ chat_val = st.chat_input("How can I help you today?")
 prompt = quick_prompt or chat_val
 
 if prompt:
-    # Add user message to history
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-        
-    # Process with Graph (Re-import is cached contextually by Python)
+
     from main import graph
     config = {"configurable": {"thread_id": st.session_state.thread_id}}
     inputs = {"messages": [{"role": "user", "content": prompt}]}
-    
+
     with st.spinner("Processing..."):
-        # We use stream to get the final state update comfortably
         output = None
         for step in graph.stream(inputs, config=config, stream_mode="values"):
             output = step
-            
+
         if output and output.get("messages"):
             agent_msg = sanitize_text(output["messages"][-1]["content"])
             st.session_state.messages.append({"role": "assistant", "content": agent_msg})
             with st.chat_message("assistant"):
                 st.markdown(agent_msg)
-                
-            # Update local session state to reflect in UI
+
             st.session_state.app_state["stage"] = output.get("stage")
             st.session_state.app_state["user_data"] = output.get("user_data")
             st.rerun()
